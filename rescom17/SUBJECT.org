@@ -210,8 +210,9 @@ Instance~ and boot a virtual machine given the following information:
 
 Please note that you should select options by clicking on the arrow on
 the right of each possibility. When the configuration is OK, the
-~Launch Instance~ button should be enabled. Please click it. After a
-few moments, the instance should be ~active~.
+~Launch Instance~ button should be enabled, you should see the 
+instance in the ~active~ state in less than a minute.
+
 
 *** Unleash the Operator in you (optional)
 OpenStack provides a command line interface to operate your Cloud. But
