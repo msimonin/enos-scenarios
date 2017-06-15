@@ -234,6 +234,8 @@ operate your cloud:
 - List networks :: ~openstack network list~
 - Start a new VM :: ~openstack server create --image cirros.uec --flavor m1.tiny --nic net-id=$(openstack network list --column ID --format value | head -n 1) <vm-name>~
 
+[ ] How can we remove debug/verbose information?
+
 * Measure OpenStack Behavior using EnOS
 ** Visualize OpenStack Behavior
 
