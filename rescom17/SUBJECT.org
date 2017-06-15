@@ -217,7 +217,7 @@ instance in the ~active~ state in less than a minute.
 *** Unleash the Operator in you (optional)
 OpenStack provides a command line interface to operate your Cloud. But
 before using it, you need first to populate your environment with
-OpenStack credentials, so that the command line wont bother you with
+OpenStack credentials, so that the command line won't bother you with
 requiring them each time. EnOS saves credentials in
 ~/opt/enos/current/admin-openrc~. You can put them into you
 environment with:
