@@ -166,7 +166,7 @@ command.
 
 You can check that all the docker images are pre-installed : 
 
-$ vagrant@enos-node:/opt/enos-$) sudo docker images
+: $ vagrant@enos-node:/opt/enos-$) sudo docker images
 
 *TODO put output*
 
@@ -196,6 +196,7 @@ $ vagrant@enos-node:/opt/enos-$)enos deploy -f reservation.yaml
 The deployment process starts each OpenStack services (e.g. Keystone,
 Nova, Neutron, ...) inside a dedicated Docker container. These
 containers can be observed from another terminal of your VM with:
+
 : vagrant@enos-node:-$) sudo docker ps
 
 ** Play with OpenStack
@@ -212,7 +213,7 @@ Instance~ and boot a virtual machine given the following information:
 - an image (i.e. here a CirrOS image is provided),
 - a flavor to limit the resources of your instance (e.g. I recommend
   tiny),
-- and a network setting (e.g. private).
+- and a network setting (must be private).
 
 You should select options by clicking on the arrow on the right of
 each possibility. When the configuration is OK, the ~Launch Instance~
@@ -226,21 +227,19 @@ access the VM:
 - login: ~cirros~
 - password: ~cubswin:)~
 
-While Horizon is helpful to discover OpenStack features, this is not
-how a true operator administrates OpenStack. A true operator prefers
-command line interface.
-
 *** Unleash the Operator in You
 OpenStack provides a command line interface to operate your Cloud. But
 before using it, you need first set your environment with OpenStack
 credentials, so that the command line won't bother you by requiring
-credentials each time. EnOS saves credentials in
-~/opt/enos/current/admin-openrc~. You can put them into you
-environment with:
-: $ source /opt/enos/current/admin-openrc
+credentials each time. 
+
+Load the OpenStack Credentials :
+
+: vagrant@enos-node:-$)/opt/enos/current/admin-openrc
 
 You can then check that your environment is correctly set by:
-: $ env|grep OS_
+
+: vagrant@enos-node:-$)$ env|grep OS_
 
 All operation to manage OpenStack are done through one single command
 line, called ~openstack~. Doing an ~openstack --help~ displays the
@@ -257,7 +256,7 @@ you a selection of most often used commands to operate your Cloud:
 Using all this command, you can start a new tiny cirros VM called
 ~my-vm~ with the following command:
 #+BEGIN_SRC bash
-$ openstack server create\
+vagrant@enos-node:-$) openstack server create\
   --image cirros.uec\
   --flavor m1.tiny\
   --nic net-id=$(openstack network show private --column id --format value)\
@@ -266,7 +265,7 @@ $ openstack server create\
 
 With this command, the VM boot with a private IP. Private IP are used
 for communication between VMs, meaning you cannot ping your VM from
-the host machine. You have to manually affect a public IP to your
+the host machine. You have to manually affect a floating IP to your
 machine if you want it pingable from the host.
 
 #+BEGIN_SRC bash
@@ -280,8 +279,15 @@ Then, ask for the status of your VM with:
 
 When the state is ~ACTIVE~ wait one minute or two, the time for the VM
 to boot. Then you can ping it on its public IP and SSH on it:
-: $ ping 192.168.143.<floating-ip>
-: $ ssh -l cirros 192.168.143.<floating-ip>
+
+: vagrant@enos-node:-$)ping <floating-ip>
+: vagrant@enos-node:-$)ssh -l cirros <floating-ip>
+
+#+BEGIN_NOTE
+VMs will be also reachable from your host machine.
+: host:-$)ping <floating-ip>
+: host:-$)ssh -l cirros <floating-ip>
+#+END_NOTE
 
 * Measure OpenStack Behavior using EnOS
 EnOS not only deploys OpenStack according to your configuration, but
