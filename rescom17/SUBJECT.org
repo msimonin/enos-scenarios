@@ -30,30 +30,69 @@ In this lab, we are going to:
 - monitor metrics and visualize them through Grafana,
 
 * Requirements and Setup (TO BE DONE BEFORE THE LAB)
-** Requirements List
+
+** Environment
+
+To follow the lab you'll need :
+
 - VirtualBox 5.1.22 [fn:virtualbox-downloads]
 - Vagrant 1.9.5 or upper[fn:vagrant-downloads]
 - Rescom17 Vagrant box[fn:enos-box] (contains EnOS with all its
   dependencies)
 
-** Setup
-Download the Rescom17 Vagrant box[fn:enos-box] in your working
-directory. The VM contains EnOS together with all resources needed by
-EnOS to run OpenStack. The box is relatively huge (4GB), but contains
-everything you need to run EnOS offline.
+The lab makes use of a pre-installed virtual machine (lab vm) where Enos is installed.
+Enos will then deploy OpenStack inside the lab-vm. 
 
-While the box is downloading, edit a ~Vagrantfile~ with the content
-below. This ~Vagrantfile~ tells VirtualBox to boot the ~rescom17~ VM
-with two network interfaces and assigns their IP addresses. It also
-customizes the VM by modifying amounts of ~cpu cores~ and ~memory~
-needed by the VM. These amounts are the bare necessities to correctly
-run OpenStack. Obviously, it means that your host machine should
-provide such resources.
+The following depicts the status the different component in play during the lab.
+
+#+BEGIN_SRC
++---------------------------------------+
+|        host machine (your laptop)     |
+|                                       |
+|                                       |
+|   +---------------------------+       |
+|   |   lab-vm machine (vagrant)|       |
+|   |     /opt/enos <- - - -  - - - - - - - - - - - EnOS files
+|   |                           |       |
+|   |  * docker container 1 +   |       |
+|   |  * docker container 2 +   |       |
+|   |  * ...                +- - - - - - - - - - - Docker container launched by Enos (Openstack service / third party service)
+|   |  * docker container n +   |       |
+|   |                           |       |
+|   +---------------------------+       |
++---------------------------------------+
+#+END_SRC
 
 #+BEGIN_NOTE
-To get more information about that ~Vagranfile~ and its syntax, you
-can refer to the official documentation[fn:vagrantfile].
+In a normal use Enos will be probably installed in your local machine directly. 
+Enos will also be able to deploy OpenStack on a dedicated infrastructure.
 #+END_NOTE
+
+
+** Setup
+
+*** Get the base box
+
+Download the Rescom17 Vagrant box[fn:enos-box] in your working
+directory. 
+
+: host-$) mkdir rescom17-enos
+: host-$) cd rescom17-enos
+: host:rescom17-enos/-$) wget http://enos.irisa.fr/vagrant-box/rescom17.box
+
+#+BEGIN_NOTE
+The VM contains EnOS together with all resources needed by
+EnOS to run OpenStack. The box is relatively huge (4GB), but contains
+everything you need to run EnOS almost offline.
+#+END_NOTE
+
+While the box is downloading, you can go to the next section.
+
+*** Prepare the lab VM
+
+Create a ~Vagrantfile~ as the following (substitute <editor> with your favorite editor): 
+
+: host:rescom17-enos/-$) <editor> Vagrantfile
 
 #+BEGIN_SRC ruby
 Vagrant.configure("2") do |config|
@@ -62,10 +101,12 @@ Vagrant.configure("2") do |config|
 
   # Network configuration
   config.vm.hostname = "enos-node"
+  # the lab vm is started with 2 extra network interfaces with
+  # the specified ip addresses
   config.vm.network :private_network, ip: "192.168.142.127"
   config.vm.network :private_network, ip: "192.168.143.127"
 
-  # VBoxManage
+  # Resource configuration
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 4
     vb.memory = 6144
@@ -73,9 +114,18 @@ Vagrant.configure("2") do |config|
 end
 #+END_SRC
 
-Then start the VM and connect to it.
-: $ vagrant up
-: $ vagrant ssh
+#+BEGIN_NOTE
+To get more information about that ~Vagranfile~ and its syntax, you
+can refer to the official documentation[fn:vagrantfile].
+#+END_NOTE
+
+*** Start the lab VM
+
+Start the VM :
+: host:rescom17-enos/-$) vagrant up
+
+SSH into the lab VM :
+: host:rescom17-enos/-$) vagrant ssh
 
 ** Validate your installation
 
