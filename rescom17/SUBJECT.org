@@ -237,7 +237,7 @@ operate your cloud:
 * Measure OpenStack Behavior using EnOS
 ** Visualize OpenStack Behavior
 
-Grafana is reachable from the web browser of
+Grafana, which allows you to monitor control plane services, is reachable from the web browser of
 your host machine http://192.168.142.127:3000 with the following credentials:
 - login: admin
 - password: admin
