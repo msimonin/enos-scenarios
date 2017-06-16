@@ -3,7 +3,7 @@
 #+TITLE: Measure and Understand Specific
 #+TITLE: Configurations of OpenStack with EnOS
 #+SUBTITLE: RESCOM 2017, 2017-06-20
-#+AUTHOR: Ronan-Alexandre Cherrueau, Dimitri Pertin, Mathieu Simonin
+#+AUTHOR: Ronan-Alexandre Cherrueau, Dimitri Pertin, Matthieu Simonin
 #+EMAIL: {firstname.lastname}@inria.fr
 
 #+OPTIONS: ':t
@@ -20,18 +20,17 @@ exploring EnOS[fn:enos-paper][fn:enos-code], a holistic framework
 leveraging containers to conduct easy and reproducible evaluations of
 different OpenStack configurations.
 
-In this lab, we gonna:
-- Deploy and Configure OpenStack using EnOS,
-- Operate this OpenStack instance to manage IaaS resources (e.g. boot
+In this lab, we are going to:
+- deploy and Configure OpenStack using EnOS,
+- operate this OpenStack instance to manage IaaS resources (e.g. boot
   VMs),
-- Run some benchmarks to evaluate both control and data planes,
-- Monitoring and metrics visualization through Grafana,
-- Application to highlight the benefit of your awesome feature.
+- run some benchmarks to evaluate the deployment,
+- monitor metrics and visualize them through Grafana,
 
 * Requirements and Setup (TO BE DONE BEFORE THE LAB)
 ** Requirements List
-- VirtualBox [fn:virtualbox-downloads]
-- Vagrant 1.9 or upper[fn:vagrant-downloads]
+- VirtualBox 5.1.22 [fn:virtualbox-downloads]
+- Vagrant 1.9.5 or upper[fn:vagrant-downloads]
 - Rescom17 Vagrant box[fn:enos-box] (contains EnOS with all its
   dependencies)
 
