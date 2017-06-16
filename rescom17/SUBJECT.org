@@ -194,7 +194,7 @@ You can check that all the docker images are pre-installed :
 To deploy OpenStack Enos reads a configuration file. 
 You can find a example in the lab vm : 
 
-$ vagrant@enos-node:/opt/enos-$) cat /opt/enos/reservation.yaml
+: $ vagrant@enos-node:/opt/enos-$) cat /opt/enos/reservation.yaml
 
 #+BEGIN_NOTE
 For the sake of this lab (since everybody does not have a Grid'5000/Chameleon
