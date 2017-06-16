@@ -4,7 +4,7 @@
 # Enos Configuration File                         #
 # ############################################### #
 
-# Resources Provider. Values are: g5k, vagrant
+# Resources description : this is provider specific
 resources:
   control:
     address: 127.0.0.1
@@ -19,6 +19,7 @@ resources:
     alias: enos-node
     user: root
 
+# Provider description and its options
 provider:
   type: static
   network:
@@ -44,13 +45,16 @@ provider:
 # This will describe the topology of your services
 inventory: inventories/inventory.sample
 
+# true iff a monitoring stack should be deployed 
+# cadvisor/collectd - influxdb - grafana
 enable_monitoring: true
 
+# Do we use an persistent registry
 registry:
   ceph: False
 
 # ############################################### #
-# Kolla parameteres                               #
+# Kolla parameters                                #
 # ############################################### #
 # Repository
 kolla_repo: https://git.openstack.org/openstack/kolla-ansible
@@ -62,6 +66,6 @@ kolla:
   kolla_install_type: source
   docker_namespace: beyondtheclouds
   # openstack_logging_debug: True
-  enable_heat: "yes"
+  enable_heat: "no"
 
   node_custom_config: patch/
