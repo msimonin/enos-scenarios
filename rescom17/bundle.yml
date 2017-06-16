@@ -36,9 +36,10 @@
   - name: Download enos into /opt
     git:
       repo: "{{ enos.repo }}"
+      version: "{{ enos.version }}"
       dest: /opt/enos
       depth: 1
-      version: "{{ enos.version }}"
+      force: yes
 
   - name: Copy local reservation.yaml files into /opt/enos/
     copy: src=reservation.yaml dest=/opt/enos
@@ -46,7 +47,7 @@
   - name: Copy local patch directoy into /opt/enos/
     copy: src=patch dest=/opt/enos
 
-  - name: Patch enos to download cirros into /opt rather than /tmp
+  - name: Patch enos to download cirros/shaker-img into /opt rather than /tmp
     command: git apply patch/cirros-in-opt.patch
     args:
       chdir: /opt/enos
@@ -80,12 +81,28 @@
       python -m enos.enos deploy -f reservation.yaml 2>&1 > /tmp/enos-bootstrap.log
     args:
       chdir: /opt/enos/
-      creates: enos-deployed
+      creates: /tmp/enos-deployed
 
-  - name: Call enos destroy
+  - name: Workaround for network issues (enos version 2016-06-16)
     shell: |
-      . venv/bin/activate
-      python -m enos.enos destroy 2>&1 >> /tmp/enos-bootstrap.log
-    args:
-      chdir: /opt/enos/
-      creates: enos-destroyed
+      ip addr del 192.168.143.127/32 dev eth2
+      ip addr add 192.168.143.127/32 dev br-ex
+      ifconfig br-ex up
+      route add -net 192.168.143.0/24 br-ex
+    sudo: true
+
+  # - name: Call enos bench
+  #   shell: |
+  #     . venv/bin/activate
+  #     python -m enos.enos bench --workload=workoad 2>&1 >> /tmp/enos-bootstrap.log
+  #   args:
+  #     chdir: /opt/enos/
+  #     creates: /tmp/enos-benched
+
+  # - name: Call enos destroy
+  #   shell: |
+  #     . venv/bin/activate
+  #     python -m enos.enos destroy 2>&1 >> /tmp/enos-bootstrap.log
+  #   args:
+  #     chdir: /opt/enos/
+  #     creates: /tmp/enos-destroyed

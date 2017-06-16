@@ -5,6 +5,20 @@
 # ############################################### #
 
 # Resources Provider. Values are: g5k, vagrant
+resources:
+  control:
+    address: 127.0.0.1
+    alias: enos-node
+    user: root
+  network:
+    address: 127.0.0.1
+    alias: enos-node
+    user: root
+  compute:
+    address: 127.0.0.1
+    alias: enos-node
+    user: root
+
 provider:
   type: static
   network:
@@ -22,20 +36,6 @@ provider:
   eths:
     - eth1
     - eth2
-
-resources:
-  control:
-    address: 127.0.0.1
-    alias: enos-node
-    user: root
-  network:
-    address: 127.0.0.1
-    alias: enos-node
-    user: root
-  compute:
-    address: 127.0.0.1
-    alias: enos-node
-    user: root
 
 # ############################################### #
 # Inventory to use                                #
@@ -61,7 +61,7 @@ kolla:
   kolla_base_distro: centos
   kolla_install_type: source
   docker_namespace: beyondtheclouds
-  openstack_logging_debug: True
+  # openstack_logging_debug: True
   enable_heat: "yes"
 
   node_custom_config: patch/

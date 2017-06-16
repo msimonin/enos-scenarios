@@ -1,17 +1,22 @@
 diff --git a/enos/enos.py b/enos/enos.py
-index f6dcbba..8c91d1a 100755
+index f2e881c..70503c8 100755
 --- a/enos/enos.py
 +++ b/enos/enos.py
-@@ -257,7 +257,7 @@ def init_os(env=None, **kwargs):
-     images = [{'name': 'cirros.uec',
-                'url': url}]
+@@ -256,10 +256,10 @@ def init_os(env=None, **kwargs):
+     cmd.append('. %s' % os.path.join(env['resultdir'], 'admin-openrc'))
+     # add cirros image
+     url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
+-    images = [{'name': 'cirros.uec',
+-               'url': url}]
++    images = [{'name': 'cirros.uec', 'url': url},
++              {'name': 'shaker-image', 'url': 'http://enos.irisa.fr/shaker-image.qcow2'}]
      for image in images:
 -        cmd.append("wget -q -O /tmp/%s %s" % (image['name'], image['url']))
 +        cmd.append("wget -q -O /opt/%s %s" % (image['name'], image['url']))
          cmd.append("openstack image list "
                     "--property name=%(image_name)s -c Name -f value "
                     "| grep %(image_name)s"
-@@ -266,7 +266,7 @@ def init_os(env=None, **kwargs):
+@@ -268,16 +268,16 @@ def init_os(env=None, **kwargs):
                     " --container-format=bare"
                     " --property architecture=x86_64"
                     " --public"
@@ -20,3 +25,14 @@ index f6dcbba..8c91d1a 100755
                     " %(image_name)s" % {'image_name': image['name'], })
  
      # flavors name, ram, disk, vcpus
+-
+     flavors = [('m1.tiny', 512, 1, 1),
+                ('m1.small', 2048, 20, 1),
+                ('m1.medium', 4096, 40, 2),
+                ('m1.large', 8192, 80, 4),
+-               ('m1.xlarge', 16384, 160, 8)]
++               ('m1.xlarge', 16384, 160, 8),
++               ('shaker-flavor', 512, 3, 1)]
+     for flavor in flavors:
+         cmd.append("openstack flavor create %s"
+                    " --id auto"
