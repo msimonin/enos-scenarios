@@ -36,7 +36,12 @@ In this lab, we are going to:
  - [[#setup][Requirements and Setup (TO BE DONE BEFORE THE LAB)]]
    - [[#environment][Environment]]
    - [[#setup-the-lab-vm][Setup the lab vm]]
-
+   - [[#validate-the-setup][Validate the setup]]
+ - [[#deploy-openstack-using-enos][Deploy OpenStack using EnOS]]
+   - [[#the-enos-configuration-file][The EnOS configuration file]]
+   - [[#deploy-openstack][Deploy OpenStack]]
+   - [[#play-with-openstack][Play with OpenStack]]
+ - [[#benchmark-openstack][Benchmark OpenStack]
 
 * Requirements and Setup (TO BE DONE BEFORE THE LAB)
 :PROPERTIES:
@@ -184,6 +189,8 @@ You can check that all the docker images are pre-installed :
 
 * Deploy OpenStack using EnOS
 
+** The EnOS configuration file
+
 To deploy OpenStack Enos reads a configuration file. 
 You can find a example in the lab vm : 
 
@@ -301,7 +308,8 @@ VMs will be also reachable from your host machine.
 : host:-$)ssh -l cirros <floating-ip>
 #+END_NOTE
 
-* Measure OpenStack Behavior using EnOS
+* Benchmark OpenStack
+
 EnOS not only deploys OpenStack according to your configuration, but
 also instruments it with a /monitoring stack/. The monitoring stack
 gets performance characteristics of the running services and helps you
