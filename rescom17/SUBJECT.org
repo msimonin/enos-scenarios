@@ -234,19 +234,16 @@ operate your cloud:
 - List networks :: ~openstack network list~
 - Start a new VM :: ~openstack server create --image cirros.uec --flavor m1.tiny --nic net-id=$(openstack network list --column ID --format value | head -n 1) <vm-name>~
 
-* Adrien - Proposal/questions
-[ ] How can we remove debug/verbose information?
-Plan de TP (pour aider si y'a deja des trucs tout pret pas de souci pour avancer sur les trucs tout pret ;)
-1./ il cree la vm via l’interface horizon
-2./ via la commande line et il joue  un peu
-3./ via rally et il regarde les traces
-4./ avec shaker et il regarde les traces
-  => Matt: Shaker c'est long
-  [ ] Est ce qu'on peut prendre un bout de code de shaker et faire notre propre script de customization qui se joue dans une cirros?
-5./ topology plus rude avec TC
-
 * Measure OpenStack Behavior using EnOS
 ** Visualize OpenStack Behavior
+
+Grafana is reachable from the web browser of
+your host machine http://192.168.142.127:3000 with the following credentials:
+- login: admin
+- password: admin
+
+The dashboard of Grafana is highly customizable. For the sake of simplicity, we propose to use our configuration file available at:
+...
 
 ** Controlplane Benchmarking with Rally
 
