@@ -18,7 +18,9 @@ developers and scientists are facing challenges when it comes to
 deploy and benchmark such a complex software stack. This lab aims at
 exploring EnOS[fn:enos-paper][fn:enos-code], a holistic framework
 leveraging containers to conduct easy and reproducible evaluations of
-different OpenStack configurations.
+different OpenStack configurations. In particular, EnOS helps you in
+deploying real OpenStack infrastructure, stressing it and get
+feedback.
 
 In this lab, we are going to:
 - deploy and Configure OpenStack using EnOS,
@@ -256,7 +258,7 @@ Using all this command, you can start a new tiny cirros VM called
 $ openstack server create\
   --image cirros.uec\
   --flavor m1.tiny\
-  --nic net-id=$(openstack network list --column ID --format value|head -n 1)\
+  --nic net-id=$(openstack network show private --column id --format value)\
   my-vm
 #+END_SRC
 
@@ -280,7 +282,28 @@ to boot. Then you can ping it on its public IP and SSH on it:
 : $ ssh -l cirros 192.168.143.<floating-ip>
 
 * Measure OpenStack Behavior using EnOS
+EnOS not only deploys OpenStack according to your configuration, but
+also instruments it with a /monitoring stack/. The monitoring stack
+gets performance characteristics of the running services and helps you
+in understanding the behavior of your OpenStack.
+
+Activating the monitoring stack is as simple as setting the
+~enable_monitoring~ to ~yes~ in your ~reservation.yaml~. This key
+tells EnOS to deploy two monitoring system. First,
+cAdvisor[fn:cadvisor], a tool to collect resource usage of running
+containers. Using cAdvisor, EnOS gives information about the
+CPU/RAM/Network consumption per cluster/node/service. Second,
+Collectd[fn:collectd], a tool to collect performance data of specific
+application. Using Collectd, EnOS gives, for instance, the number of
+updates that have been performed on the Nova database.
+
+The rest of this section, first shows you how to visualize information
+provided by cAdvisor and Collectd. Then it goes through tools to
+stress OpenStack in order to collect interesting information.
+
 ** Visualize OpenStack Behavior
+The common tool to visualize information provided by cAdvisor (and
+
 
 Grafana, which allows you to monitor control plane services, is
 reachable from the web browser of your host machine
@@ -297,7 +320,7 @@ simplicity, we propose to use our configuration file available at: ...
 
 ** Integration with a custom benchmarking suite
 
-* Add Traffic Shaping
+* Add Traffic Shaping (optional - non static only)
 ** Define Network Constraints (latency + packet loss)
 
 ** Run Dataplane Benchmarks with and without DVR
@@ -311,3 +334,5 @@ simplicity, we propose to use our configuration file available at: ...
 [fn:enos-box] http://enos.irisa.fr/vagrant-box/rescom17.box
 [fn:enos-g5k-provider] https://enos.readthedocs.io/en/latest/provider/grid5000.html
 [fn:vagrantfile] https://www.vagrantup.com/docs/vagrantfile/index.html
+[fn:cadvisor] https://github.com/google/cadvisor
+[fn:collectd] https://collectd.org/
