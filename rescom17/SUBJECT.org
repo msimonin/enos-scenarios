@@ -75,6 +75,8 @@ Then start the VM and connect to it.
 : $ vagrant up
 : $ vagrant ssh
 
+** Validate your installation
+
 The EnOS tool is already installed in ~/opt/enos~. To be sure that
 everything is setup correctly, you can go into the EnOS directory and
 display the help message.
