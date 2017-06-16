@@ -194,11 +194,12 @@ containers can be observed from another terminal of your VM with:
 : $ sudo docker ps
 
 ** Play with OpenStack
-The last service deployed is the OpenStack dashboard (Horizon). Once the
-deployment process is finished, Horizon is reachable from the web browser of
-your host machine http://192.168.142.127 with the following credentials:
-- login: admin
-- password: demo
+The last service deployed is the OpenStack dashboard (Horizon). Once
+the deployment process is finished, Horizon is reachable from the web
+browser of your host machine http://192.168.142.127 with the following
+credentials:
+- login: ~admin~
+- password: ~demo~
 
 From here you can reach ~Project > Compute > Instances > Launch
 Instance~ and boot a virtual machine given the following information:
@@ -208,42 +209,86 @@ Instance~ and boot a virtual machine given the following information:
   tiny),
 - and a network setting (e.g. private).
 
-Please note that you should select options by clicking on the arrow on
-the right of each possibility. When the configuration is OK, the
-~Launch Instance~ button should be enabled, you should see the 
-instance in the ~active~ state in less than a minute.
+You should select options by clicking on the arrow on the right of
+each possibility. When the configuration is OK, the ~Launch Instance~
+button should be enabled, you should see the instance in the ~Active~
+state in less than a minute.
 
+Now, you have several option to connect to your freshly deployed VM.
+For instance by clicking on its name, Horizon provides a virtual
+console under the tab ~Console~. Use the following credentials to
+access the VM:
+- login: ~cirros~
+- password: ~cubswin:)~
 
-*** Unleash the Operator in you (optional)
+While Horizon is helpful to discover OpenStack features, this is not
+how a true operator administrates OpenStack. A true operator prefers
+command line interface.
+
+*** Unleash the Operator in You
 OpenStack provides a command line interface to operate your Cloud. But
-before using it, you need first to populate your environment with
-OpenStack credentials, so that the command line won't bother you with
-requiring them each time. EnOS saves credentials in
+before using it, you need first set your environment with OpenStack
+credentials, so that the command line won't bother you by requiring
+credentials each time. EnOS saves credentials in
 ~/opt/enos/current/admin-openrc~. You can put them into you
 environment with:
-: source /opt/enos/current/admin-openrc
+: $ source /opt/enos/current/admin-openrc
 
-You can then check that your environment is correctly populated by:
-: env|grep OS_*
+You can then check that your environment is correctly set by:
+: $ env|grep OS_
 
-Next gives you a selection of well known OpenStack cli command to
-operate your cloud:
+All operation to manage OpenStack are done through one single command
+line, called ~openstack~. Doing an ~openstack --help~ displays the
+really long list of possibilities provided by this command. Next gives
+you a selection of most often used commands to operate your Cloud:
+- List images :: ~openstack image list~
+- List flavors :: ~openstack flavor list~
+- List networks :: ~openstack network list~
 - List all your Compute :: ~openstack hypervisor list~
 - List all your VM :: ~openstack server list~
 - Get details on a specific VM :: ~openstack server show <vm-name>~
-- List networks :: ~openstack network list~
-- Start a new VM :: ~openstack server create --image cirros.uec --flavor m1.tiny --nic net-id=$(openstack network list --column ID --format value | head -n 1) <vm-name>~
+- Start a new VM :: ~openstack server create --image <image-name> --flavor <flavor-name> --nic net-id=<net-id> <vm-name>~
+
+Using all this command, you can start a new tiny cirros VM called
+~my-vm~ with the following command:
+#+BEGIN_SRC bash
+$ openstack server create\
+  --image cirros.uec\
+  --flavor m1.tiny\
+  --nic net-id=$(openstack network list --column ID --format value|head -n 1)\
+  my-vm
+#+END_SRC
+
+With this command, the VM boot with a private IP. Private IP are used
+for communication between VMs, meaning you cannot ping your VM from
+the host machine. You have to manually affect a public IP to your
+machine if you want it pingable from the host.
+
+#+BEGIN_SRC bash
+$ openstack server add floating ip\
+  my-vm\
+  $(openstack floating ip create  public -c floating_ip_address -f value)
+#+END_SRC
+
+Then, ask for the status of your VM with:
+: $ openstack server show my-vm -c status -c addresses
+
+When the state is ~ACTIVE~ wait one minute or two, the time for the VM
+to boot. Then you can ping it on its public IP and SSH on it:
+: $ ping 192.168.143.<floating-ip>
+: $ ssh -l cirros 192.168.143.<floating-ip>
 
 * Measure OpenStack Behavior using EnOS
 ** Visualize OpenStack Behavior
 
-Grafana, which allows you to monitor control plane services, is reachable from the web browser of
-your host machine http://192.168.142.127:3000 with the following credentials:
-- login: admin
-- password: admin
+Grafana, which allows you to monitor control plane services, is
+reachable from the web browser of your host machine
+http://192.168.142.127:3000 with the following credentials:
+- login: ~admin~
+- password: ~admin~
 
-The dashboard of Grafana is highly customizable. For the sake of simplicity, we propose to use our configuration file available at:
-...
+The dashboard of Grafana is highly customizable. For the sake of
+simplicity, we propose to use our configuration file available at: ...
 
 ** Controlplane Benchmarking with Rally
 

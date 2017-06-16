@@ -1,0 +1,92 @@
+diff --git a/enos/ansible/roles/bench/tasks/shaker.yml b/enos/ansible/roles/bench/tasks/shaker.yml
+index f50b748..27edaa5 100644
+--- a/enos/ansible/roles/bench/tasks/shaker.yml
++++ b/enos/ansible/roles/bench/tasks/shaker.yml
+@@ -9,7 +9,7 @@
+     name: "{{ bench.scenario_location | to_uuid }}"
+     image: beyondtheclouds/shaker
+     state: started
+-    command: "--scenario {{ bench.file }} --server-endpoint {{ ansible_default_ipv4.address }}:11234 --flavor-name m1.medium"
++    command: "--scenario {{ bench.file }} --server-endpoint {{ ansible_default_ipv4.address }}:11234 --flavor-name shaker-flavor"
+     ports: 
+       - "11234:11234"
+     volumes:
+diff --git a/enos/enos.py b/enos/enos.py
+index f2e881c..59e6f99 100755
+--- a/enos/enos.py
++++ b/enos/enos.py
+@@ -254,12 +254,10 @@ def init_os(env=None, **kwargs):
+ 
+     cmd = []
+     cmd.append('. %s' % os.path.join(env['resultdir'], 'admin-openrc'))
+-    # add cirros image
+-    url = 'http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img'
+-    images = [{'name': 'cirros.uec',
+-               'url': url}]
+-    for image in images:
+-        cmd.append("wget -q -O /tmp/%s %s" % (image['name'], image['url']))
++
++    # add cirros/shaker images
++    images = ['cirros.uec', 'shaker-image']
++    for image_name in images:
+         cmd.append("openstack image list "
+                    "--property name=%(image_name)s -c Name -f value "
+                    "| grep %(image_name)s"
+@@ -268,16 +266,16 @@ def init_os(env=None, **kwargs):
+                    " --container-format=bare"
+                    " --property architecture=x86_64"
+                    " --public"
+-                   " --file /tmp/%(image_name)s"
+-                   " %(image_name)s" % {'image_name': image['name'], })
++                   " --file /opt/enos/%(image_name)s"
++                   " %(image_name)s" % {'image_name': image_name})
+ 
+     # flavors name, ram, disk, vcpus
+-
+     flavors = [('m1.tiny', 512, 1, 1),
+                ('m1.small', 2048, 20, 1),
+                ('m1.medium', 4096, 40, 2),
+                ('m1.large', 8192, 80, 4),
+-               ('m1.xlarge', 16384, 160, 8)]
++               ('m1.xlarge', 16384, 160, 8),
++               ('shaker-flavor', 512, 3, 1)]
+     for flavor in flavors:
+         cmd.append("openstack flavor create %s"
+                    " --id auto"
+@@ -334,6 +332,9 @@ def init_os(env=None, **kwargs):
+                " --dns-nameserver %s"
+                " --ip-version 4" % (env["provider_net"]['dns']))
+ 
++    cmd.append("openstack role add --user admin"
++               " --project admin heat_stack_owner")
++
+     # create a router between this two networks
+     cmd.append('openstack router create router')
+     # NOTE(msimonin): not sure how to handle these 2 with openstack cli
+diff --git a/workload/run.yml b/workload/run.yml
+index ca344fd..2aa442c 100644
+--- a/workload/run.yml
++++ b/workload/run.yml
+@@ -4,7 +4,7 @@
+ # - we rely on the rally template mechanism
+ # 
+ rally: 
+-    enabled: true
++    enabled: yes
+     args: 
+       concurrency:
+         - 5
+@@ -17,10 +17,8 @@ rally:
+           sla_max_avg_duration: 30
+         #plugin: path to your plugin relative to the workload dir
+ shaker:
+-  enabled: false
++  enabled: no
+   scenarios:
+-    - name: shaker instance_metadata
+-      file: misc/instance_metadata
+-    - name: shaker dense_l2
+-      file: openstack/dense_l2
++    - name: shaker dense l3 east/west
++      file: openstack/dense_l3_east_west
+ 

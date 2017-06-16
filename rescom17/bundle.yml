@@ -47,8 +47,18 @@
   - name: Copy local patch directoy into /opt/enos/
     copy: src=patch dest=/opt/enos
 
-  - name: Patch enos to download cirros/shaker-img into /opt rather than /tmp
-    command: git apply patch/cirros-in-opt.patch
+  - name: Download cirros into /opt/enos
+    get_url:
+      url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+      dest: /opt/enos/cirros.uec
+
+  - name: Download shaker-image into /opt/enos
+    get_url:
+      url: http://enos.irisa.fr/shaker-image.qcow2
+      dest: /opt/enos/shaker-image
+
+  - name: Patch enos to get cirros/shaker-img from /opt rather than /tmp
+    command: git apply patch/images-in-opt.patch
     args:
       chdir: /opt/enos
 
@@ -91,18 +101,19 @@
       route add -net 192.168.143.0/24 br-ex
     sudo: true
 
-  # - name: Call enos bench
-  #   shell: |
-  #     . venv/bin/activate
-  #     python -m enos.enos bench --workload=workoad 2>&1 >> /tmp/enos-bootstrap.log
-  #   args:
-  #     chdir: /opt/enos/
-  #     creates: /tmp/enos-benched
+  - name: Call enos bench
+    shell: |
+      . venv/bin/activate
+      python -m enos.enos bench --workload=workoad 2>&1 >> /tmp/enos-bootstrap.log
+    args:
+      chdir: /opt/enos/
+      creates: /tmp/enos-benched
 
-  # - name: Call enos destroy
-  #   shell: |
-  #     . venv/bin/activate
-  #     python -m enos.enos destroy 2>&1 >> /tmp/enos-bootstrap.log
-  #   args:
-  #     chdir: /opt/enos/
-  #     creates: /tmp/enos-destroyed
+  - name: Clean enos
+    shell: |
+      . venv/bin/activate
+      python -m enos.enos destroy 2>&1 >> /tmp/enos-bootstrap.log
+      rm -rf current/ enos_201*
+    args:
+      chdir: /opt/enos/
+      creates: /tmp/enos-destroyed
