@@ -171,92 +171,32 @@ $ vagrant@enos-node:/opt/enos-$) sudo docker images
 *TODO put output*
 
 * Deploy OpenStack using EnOS
-EnOS helps you to test and measure /specific configurations/ of
-OpenStack. A configuration states the OpenStack resources you want to
-measure together with there topology. A configuration could say,
-"/Deploy a basic OpenStack on a single node/", or "/Put OpenStack
-control services on ClusterA and compute services on ClusterB/", but
-also "/Deploy each OpenStack services on a dedicated node/ /and add
-WAN network latency between them/". So that EnOS can deploy such
-OpenStack over your testbed and run performance analysis. This section
-shows you, how to define a configuration and deploy OpenStack over
-your testbed.
 
-** Describe and customize the topology of your OpenStack
-The OpenStack configuration is described in a file called
-~reservation.yaml~ under a key named ~resources~. For instance,
-configuration in listing [[lst:basic]] shows you how easy it is, with
-EnOS, to target a basic OpenStack deployment. It says:
+To deploy OpenStack Enos reads a configuration file. 
+You can find a example in the lab vm : 
 
-#+BEGIN_QUOTE
-On my ~clusterA~, I want ~1~ node for control services and ~1~ node
-for network services. And on my ~clusterB~, I want ~50~ computes
-nodes.
-#+END_QUOTE
+$ vagrant@enos-node:/opt/enos-$) cat /opt/enos/reservation.yaml
 
-Then, scaling horizontally is as simple as increasing the number next
-to the service name. You can also tune your topology and put some
-services on a dedicated node by explicitly giving resources to it. For
-instance, configuration in listing [[lst:advanced]] tells EnOS to pull out
-nova conductor from control node and start it on ~5~ dedicated nodes.
+#+BEGIN_NOTE
+For the sake of this lab (since everybody does not have a Grid'5000/Chameleon
+account, and the Internet connection may be slow)  all
+OpenStack services using the static provider targetting a single machine.
 
-#+ATTR_HTML: style="float:left;"
-#+CAPTION: EnOS Configuration for
-#+CAPTION: Basic OpenStack Deployment
-#+NAME: lst:basic
-#+BEGIN_SRC yaml
-resources:
-  clusterA:
-    control: 1
-    network: 1
-  clusterB:
-    compute: 50
-#+END_SRC
-
-#+CAPTION: EnOS Configuration for
-#+CAPTION: Advanced OpenStack Deployment
-#+NAME: lst:advanced
-#+BEGIN_SRC yaml
-resources:
-  clusterA:
-    control: 1
-    network: 1
-    nova-conductor: 5
-  clusterB:
-    compute: 50
-#+END_SRC
-
-EnOS comes with ~providers~ which are connectors to deploy your
-OpenStack on different testbeds. The actual implementation gives
-providers for Static resources, Vagrant, Grid'5000 and OpenStack
-itself. Such providers are used to provision and configure the
-machines on which EnOS deploys the OpenStack services. For instance,
-the Grid'5000 provider can be used by EnOS to reserve and deploy
-machines on different clusters of Grid'5000. In the same manner, the
-Vagrant provider can be used by EnOS to start VM on your current
-machine. Please, refer to EnOS documentation[fn:enos-g5k-provider] for
-further information.
-
-For the sake of this lab (since everybody does not have a Grid'5000
-account, and the Internet connection may be slow) we will install all
-OpenStack services in our current working space using the static
-provider. Take a look at the current ~/opt/enos/reservation.yaml~ and
-see that it achieves a basic OpenStack deployment. Based on that
-configuration, you will be able to ask EnOS to deploy OpenStack.
+If you want more information on the supported provider, you can have a look to [fn:enos-provider].
+#+END_NOTE
 
 ** Deploy OpenStack
 EnOS manages all the aspect of an OpenStack deployment by calling
 ~enos deploy~. Concretely the ~deploy~ phase do:
 
 #+BEGIN_SRC bash
-$ cd /opt/enos
-$ enos deploy -f reservation.yaml
+$ vagrant@enos-node:/opt/enos-$)enos deploy -f reservation.yaml
 #+END_SRC
 
 The deployment process starts each OpenStack services (e.g. Keystone,
 Nova, Neutron, ...) inside a dedicated Docker container. These
 containers can be observed from another terminal of your VM with:
-: $ sudo docker ps
+: vagrant@enos-node:-$) sudo docker ps
 
 ** Play with OpenStack
 The last service deployed is the OpenStack dashboard (Horizon). Once
@@ -394,6 +334,7 @@ simplicity, we propose to use our configuration file available at: ...
 [fn:virtualbox-downloads] https://www.virtualbox.org/wiki/Downloads
 [fn:vagrant-downloads] https://www.vagrantup.com/downloads.html
 [fn:enos-box] http://enos.irisa.fr/vagrant-box/rescom17.box
+[fn:enos-provider] https://enos.readthedocs.io/en/latest/provider.html
 [fn:enos-g5k-provider] https://enos.readthedocs.io/en/latest/provider/grid5000.html
 [fn:vagrantfile] https://www.vagrantup.com/docs/vagrantfile/index.html
 [fn:cadvisor] https://github.com/google/cadvisor
