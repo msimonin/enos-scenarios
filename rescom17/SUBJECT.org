@@ -43,7 +43,7 @@ To follow the lab you'll need :
 The lab makes use of a pre-installed virtual machine (lab vm) where Enos is installed.
 Enos will then deploy OpenStack inside the lab-vm. 
 
-The following depicts the status the different component in play during the lab.
+The following depicts the status of the different components in play during the lab.
 
 #+BEGIN_SRC
 +---------------------------------------+
@@ -65,7 +65,7 @@ The following depicts the status the different component in play during the lab.
 
 #+BEGIN_NOTE
 In a normal use Enos will be probably installed in your local machine directly. 
-Enos will also be able to deploy OpenStack on a dedicated infrastructure.
+Enos will also be able to deploy OpenStack on a dedicated infrastructure (instead of a single VM)
 #+END_NOTE
 
 
@@ -95,6 +95,7 @@ Create a ~Vagrantfile~ as the following (substitute <editor> with your favorite 
 : host:rescom17-enos/-$) <editor> Vagrantfile
 
 #+BEGIN_SRC ruby
+# rescom17-enos/Vagrantfile content
 Vagrant.configure("2") do |config|
   # Location of the VM image
   config.vm.box = "file://./rescom17.box"
@@ -127,14 +128,17 @@ Start the VM :
 SSH into the lab VM :
 : host:rescom17-enos/-$) vagrant ssh
 
-** Validate your installation
+** Validate the setup
+
+*** Enos installation
 
 The EnOS tool is already installed in ~/opt/enos~. To be sure that
 everything is setup correctly, you can go into the EnOS directory and
 display the help message.
+
 #+BEGIN_EXAMPLE
-$ cd /opt/enos
-$ enos --help
+$ vagrant@enos-node:-$) cd /opt/enos
+$ vagrant@enos-node:/opt/enos-$) enos help
 Enos: Monitor and test your OpenStack.
 
 usage: enos <command> [<args> ...] [-e ENV|--env=ENV]
@@ -157,6 +161,14 @@ Commands:
 See 'enos <command> --help' for more information on a specific
 command.
 #+END_EXAMPLE
+
+*** Docker installation
+
+You can check that all the docker images are pre-installed : 
+
+$ vagrant@enos-node:/opt/enos-$) sudo docker images
+
+*TODO put output*
 
 * Deploy OpenStack using EnOS
 EnOS helps you to test and measure /specific configurations/ of
