@@ -41,7 +41,7 @@ In this lab, we are going to:
    - [[#the-enos-configuration-file][The EnOS configuration file]]
    - [[#deploy-openstack][Deploy OpenStack]]
    - [[#play-with-openstack][Play with OpenStack]]
- - [[#benchmark-openstack][Benchmark OpenStack]
+ - [[#benchmark-openstack][Benchmark OpenStack]]
 
 * Requirements and Setup (TO BE DONE BEFORE THE LAB)
 :PROPERTIES:
