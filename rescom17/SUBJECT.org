@@ -29,7 +29,19 @@ In this lab, we are going to:
 - run some benchmarks to evaluate the deployment,
 - monitor metrics and visualize them through Grafana,
 
+* Agenda
+
+*TODO put a toc*
+
+ - [[#setup][Requirements and Setup (TO BE DONE BEFORE THE LAB)]]
+   - [[#environment][Environment]]
+   - [[#setup-the-lab-vm][Setup the lab vm]]
+
+
 * Requirements and Setup (TO BE DONE BEFORE THE LAB)
+:PROPERTIES:
+:CUSTOM_ID: setup
+:END:
 
 ** Environment
 
@@ -69,7 +81,7 @@ Enos will also be able to deploy OpenStack on a dedicated infrastructure (instea
 #+END_NOTE
 
 
-** Setup
+** Setup the lab vm
 
 *** Get the base box
 
