@@ -12,7 +12,7 @@ index f50b748..27edaa5 100644
        - "11234:11234"
      volumes:
 diff --git a/enos/enos.py b/enos/enos.py
-index f2e881c..59e6f99 100755
+index f2e881c..011e952 100755
 --- a/enos/enos.py
 +++ b/enos/enos.py
 @@ -254,12 +254,10 @@ def init_os(env=None, **kwargs):
@@ -53,7 +53,7 @@ index f2e881c..59e6f99 100755
      for flavor in flavors:
          cmd.append("openstack flavor create %s"
                     " --id auto"
-@@ -334,6 +332,9 @@ def init_os(env=None, **kwargs):
+@@ -334,12 +332,21 @@ def init_os(env=None, **kwargs):
                 " --dns-nameserver %s"
                 " --ip-version 4" % (env["provider_net"]['dns']))
  
@@ -63,8 +63,20 @@ index f2e881c..59e6f99 100755
      # create a router between this two networks
      cmd.append('openstack router create router')
      # NOTE(msimonin): not sure how to handle these 2 with openstack cli
+     cmd.append('neutron router-gateway-set router public')
+     cmd.append('neutron router-interface-add router private-subnet')
+ 
++    # FIXME: workaround to fix the network issue
++    cmd.append('sudo ip addr del 192.168.143.127/32 dev eth2')
++    cmd.append('sudo ip addr add 192.168.143.127/32 dev br-ex')
++    cmd.append('sudo ifconfig br-ex up')
++    cmd.append('sudo route add -net 192.168.143.0/24 br-ex')
++
+     cmd = '\n'.join(cmd)
+ 
+     logging.info(cmd)
 diff --git a/workload/run.yml b/workload/run.yml
-index ca344fd..2aa442c 100644
+index ca344fd..943955b 100644
 --- a/workload/run.yml
 +++ b/workload/run.yml
 @@ -4,7 +4,7 @@
@@ -87,6 +99,6 @@ index ca344fd..2aa442c 100644
 -      file: misc/instance_metadata
 -    - name: shaker dense_l2
 -      file: openstack/dense_l2
-+    - name: shaker dense l3 east/west
-+      file: openstack/dense_l3_east_west
++    - name: OpenStack L3 East-West UDP
++      file: openstack/udp_l3_east_west
  

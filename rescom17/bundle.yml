@@ -93,14 +93,6 @@
       chdir: /opt/enos/
       creates: /tmp/enos-deployed
 
-  - name: Workaround for network issues (enos version 2016-06-16)
-    shell: |
-      ip addr del 192.168.143.127/32 dev eth2
-      ip addr add 192.168.143.127/32 dev br-ex
-      ifconfig br-ex up
-      route add -net 192.168.143.0/24 br-ex
-    sudo: true
-
   - name: Call enos bench
     shell: |
       . venv/bin/activate
