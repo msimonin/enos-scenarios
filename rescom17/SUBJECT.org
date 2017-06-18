@@ -355,13 +355,13 @@ simplicity, we propose to use our configuration file that you can get
 with:
 : host:~/rescom17-enos$ curl http://enos.irisa.fr/vagrant-box/grafana_dashboard_rescom2017.json -O
 
-You have then to import this file into Grafana by clicking on ~Grafana
-logo > Dashboard > Import > Upload .json file~ and selecting the
-~grafana_dashboard_rescom2017.json~. Next, make names of the right
-column matching names of the left column by selecting the good item in
-the list. And finish by clicking on ~Save & Open~. This opens the
-dashboard with several measures on Nova, Neutron, Keystone, RabbitMQ,
-... services.
+You have then to import this file into Grafana. First, click on
+~Grafana logo > Dashboard > Import > Upload .json file~ and select the
+=~/rescom17-enos/grafana_dashboard_rescom2017.json= file. Next, make
+names of the right column matching names of the left column by
+selecting the good item in the list. And finish by clicking on ~Save &
+Open~. This opens the dashboard with several measures on Nova,
+Neutron, Keystone, RabbitMQ, ... services.
 
 Keep the dashboard open until the end of the lab, you will see
 consumption variation as we will perform stress tests. Eventually, you
@@ -374,37 +374,54 @@ plane/ and /data plane/, and so it is for OpenStack. The control plane
 stresses OpenStack API. That is to say, features we used in the
 previous section to start a VM, get a floating IP, and all features
 listed by ~openstack --help~. The data plane stresses the usage of
-resources provided by these features. For instance, a network data
+resources provided by OpenStack features. For instance, a network data
 plane testing tool will measure how resources provided by Neutron
 handle networks communications.
 
-OpenStack comes with dedicated tools for both control and data plane
-stressing. The one for control plane is called Rally[fn:rally] and the
-one for data plane is called Shaker[fn:shaker]. And these two are well
-integrated into EnOS.
+OpenStack comes with dedicated tools that provide workload to stress
+control and data plane. The one for control plane is called
+Rally[fn:rally] and the one for data plane is called
+Shaker[fn:shaker]. And these two are well integrated into EnOS.
 
 Calling Rally and Shaker from EnOS is done with:
 : vagrant@enos-node:/opt/enos$  enos bench --workload=workload
 
 EnOS looks at ~workload~ directory for a file named ~run.yml~. This
 file is the description of the workload to launch. Listing [[lst:run]]
-shows the definition of the ~run.yml~ provided in this lab.
+shows the definition of the ~run.yml~ provided in this lab. The
+~rally~ key specifies the list of ~scenarios~ to execute (here, only
+Nova boot and list servers).
+
+TODO: ...
+
+A Rally scenario is parameterable.
+
+the number of OpenStack clients run by Rally
+(~concurrency~), the number of ~times~ a scenario is executed and  Rally scenarios
 
 #+CAPTION: Description of the workload for this lab.
 #+CAPTION: It says to run one Rally scenarios that
 #+CAPTION: boot and list VMs.
 #+NAME: lst:run
 #+BEGIN_SRC yaml
+---
 rally:
-  enabled: yes
-  scenarios:
-    - name: boot and list servers
-      file: nova-boot-list-cc.yml
+    enabled: yes
+    args:
+      concurrency:
+        - 5
+      times:
+        - 10
+    scenarios:
+      - name: boot and list servers
+        file: nova-boot-list-cc.yml
+        args:
+          sla_max_avg_duration: 30
 shaker:
   enabled: no
   scenarios:
-    - name: shaker instance_metadata
-      file: misc/instance_metadata
+    - name: OpenStack L3 East-West UDP
+      file: openstack/udp_l3_east_west
 #+END_SRC
 
 #+BEGIN_NOTE
@@ -430,7 +447,7 @@ Results include:
 
 ** Integration with a custom benchmarking suite
 
-* Add Traffic Shaping (optional -- non static only)
+* Add Traffic Shaping (optional -- non static provider only)
 ** Define Network Constraints (latency + packet loss)
 
 ** Run Dataplane Benchmarks with and without DVR
