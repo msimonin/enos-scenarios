@@ -130,7 +130,7 @@ display the help message.
 
 #+BEGIN_EXAMPLE
 vagrant@enos-node:~$ cd /opt/enos
-vagrant@enos-node:/opt/enos$ enos help
+vagrant@enos-node:/opt/enos$ enos --help
 Enos: Monitor and test your OpenStack.
 
 usage: enos <command> [<args> ...] [-e ENV|--env=ENV]
