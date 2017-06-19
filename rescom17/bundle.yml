@@ -106,6 +106,7 @@
       . venv/bin/activate
       python -m enos.enos destroy 2>&1 >> /tmp/enos-bootstrap.log
       rm -rf enos_201* current
+      sudo rm -rf /root/rally_home /root/shaker_home
     args:
       chdir: /opt/enos/
       creates: /tmp/enos-destroyed
