@@ -1,6 +1,6 @@
 # -*- mode: org -*-
 
-#+TITLE: Measure and Understand Specific
+#+TITLE: Measure & Understand Specific
 #+TITLE: Configurations of OpenStack with EnOS
 #+SUBTITLE: RESCOM 2017, 2017-06-20
 #+AUTHOR: Ronan-Alexandre Cherrueau, Dimitri Pertin, Matthieu Simonin
@@ -66,7 +66,6 @@ In a normal use Enos will be installed on your local machine directly.
 Enos will also probably deploy OpenStack on a dedicated infrastructure
 (instead of a single VM).
 #+END_NOTE
-
 
 ** Setup the lab vm
 *** Get the base box
@@ -216,15 +215,11 @@ If you want more information on the supported provider, you can have a look to [
 ** Deploy OpenStack
 EnOS manages all the aspect of an OpenStack deployment by calling
 ~enos deploy~. Concretely the ~deploy~ phase do:
-
-#+BEGIN_SRC bash
-$ vagrant@enos-node:/opt/enos-$)enos deploy -f reservation.yaml
-#+END_SRC
+: vagrant@enos-node:/opt/enos-$)enos deploy -f reservation.yaml
 
 The deployment process starts each OpenStack services (e.g. Keystone,
 Nova, Neutron, ...) inside a dedicated Docker container. These
 containers can be observed from another terminal of your VM with:
-
 : vagrant@enos-node:/opt/enos$ sudo docker ps
 
 ** Play with OpenStack
@@ -287,13 +282,13 @@ you a selection of most often used commands to operate your Cloud:
 
 Using all these commands, you can use the cli to start a new tiny
 cirros VM called ~my-vm~:
-#+BEGIN_SRC bash
+#+BEGIN_EXAMPLE
 vagrant@enos-node:/opt/enos$ openstack server create\
   --image cirros.uec\
   --flavor m1.tiny\
   --nic net-id=$(openstack network show private --column id --format value)\
   my-vm
-#+END_SRC
+#+END_EXAMPLE
 
 And then display information about your VM with the following command.
 Note in particular the status of your VM. This status will go from
@@ -307,11 +302,11 @@ private IP. Private IPs are used for communication between VMs,
 meaning you cannot ping your VM from the lab machine. You have to
 manually affect a floating IP to your machine if you want it pingable
 from the lab.
-#+BEGIN_SRC bash
+#+BEGIN_EXAMPLE
 vagrant@enos-node:/opt/enos$ openstack server add floating ip\
   my-vm\
   $(openstack floating ip create public -c floating_ip_address -f value)
-#+END_SRC
+#+END_EXAMPLE
 
 Then, ask for the status of your VM and its IPs with:
 : vagrant@enos-node:/opt/enos$ openstack server show my-vm -c status -c addresses
@@ -321,7 +316,7 @@ to boot. Then you can ping it on its floating IP and SSH on it:
 : vagrant@enos-node:/opt/enos$ ping <floating-ip> # floating-ip is 192.168.143.*
 : vagrant@enos-node:/opt/enos$ ssh -l cirros <floating-ip>
 
-* Benchmark OpenStack
+* Stress and Visualize OpenStack Behavior using EnOS
 EnOS not only deploys OpenStack according to your configuration, but
 also instruments it with a /monitoring stack/. The monitoring stack
 gets performance characteristics of the running services and helps you
@@ -384,68 +379,95 @@ Rally[fn:rally] and the one for data plane is called
 Shaker[fn:shaker]. And these two are well integrated into EnOS.
 
 Calling Rally and Shaker from EnOS is done with:
-: vagrant@enos-node:/opt/enos$  enos bench --workload=workload
+: vagrant@enos-node:/opt/enos$ enos bench --workload=workload
+
+#+BEGIN_NOTE
+At the same time as ~enos bench~ running, keep an eye on the Grafana
+dashboard available at http://192.168.142.127:3000.
+#+END_NOTE
 
 EnOS looks at ~workload~ directory for a file named ~run.yml~. This
 file is the description of the workload to launch. Listing [[lst:run]]
 shows the definition of the ~run.yml~ provided in this lab. The
-~rally~ key specifies the list of ~scenarios~ to execute (here, only
-Nova boot and list servers).
-
-TODO: ...
-
-A Rally scenario is parameterable.
-
-the number of OpenStack clients run by Rally
-(~concurrency~), the number of ~times~ a scenario is executed and  Rally scenarios
+[[(rally)][~rally~]] key specifies the list of [[(scn)][~scenarios~]] to execute (here, only
+~boot and list servers~ that asks Nova to boot VMs and list them) and
+their customization. The customization could be done by using the top
+level [[(top-arg)][~args~]]. In such case, it applies to any scenario. For instance
+here, [[(conc)][~concurrency~]] and [[(times)][~times~]] tells Rally to launch ~5~ OpenStack
+client for a total of ~10~ execution of every scenario. The
+customization could also be done per scenario with the dedicated
+[[(scn-arg)][~args~]], and thus only applies to the specific scenario. For instance
+here, the ~30~ value overrides the ~sla_max_avg_duration~ default
+value solely in the ~boot and list servers~ scenario.
 
 #+CAPTION: Description of the workload for this lab.
 #+CAPTION: It says to run one Rally scenarios that
 #+CAPTION: boot and list VMs.
 #+NAME: lst:run
-#+BEGIN_SRC yaml
+#+BEGIN_SRC yaml -r
 ---
-rally:
+rally:                                   (ref:rally)
     enabled: yes
-    args:
-      concurrency:
+    args:                                (ref:top-arg)
+      concurrency:                       (ref:conc)
         - 5
-      times:
+      times:                             (ref:times)
         - 10
-    scenarios:
+    scenarios:                           (ref:scn)
       - name: boot and list servers
         file: nova-boot-list-cc.yml
-        args:
+        args:                            (ref:scn-arg)
           sla_max_avg_duration: 30
 shaker:
-  enabled: no
+  enabled: no                            (ref:disabled)
   scenarios:
     - name: OpenStack L3 East-West UDP
       file: openstack/udp_l3_east_west
 #+END_SRC
 
 #+BEGIN_NOTE
-Note that Shacker workload is disabled because the lab machines
-doesn't provides enough resources to launch it.
+Note that Shaker workload is [[(disabled)][disabled]] because the lab machines doesn't
+provides enough resources to launch it.
 #+END_NOTE
 
-TODO: Description of the scenario
+Rally and Shaker provide a huge list of scenarios on their respective
+GitHub[fn:rally-scenarios][fn:shaker-scenarios]. Before going further,
+go through the Rally list and try to add the scenario of your choice
+into the ~run.yml~. Note that you have to download the scenario file
+in the ~workload~ directory and then put a new item under the
+[[(scn)][~scenarios~]] key. The new item should contain, at least, the ~name~ of
+the scenario and its ~file~ path (relative to the ~workload~
+directory).
 
-The complete list of Rally and Shaker scenarios are available on their
-GitHub[fn:rally-scenarios][fn:shaker-scenarios].
-
-Add a scenario of your choice (e.g.,
-~Neutron.create_and_delete_routers~) and re-run EnOS ~bench~ phase.
-
-Get results with
+** Backup your results
+Rally and Shaker produce reports on executed scenarios. For instance,
+Rally produces a report with the full duration, load mean duration,
+number of iteration and percent of failures, per scenario. These
+reports, plus data measured by cAdvisor and Collectd, plus logs of
+every OpenStack services can be backup by EnOS with:
 : vagrant@enos-node:/opt/enos$ enos backup --backup_dir=/vagrant_data
 
-Results include:
-- Rally reports ...
-- Log of each service
-- Influx database
+The argument ~backup_dir~ tells where store backup archives. For this
+lab, we recommend to put backup in ~/vagrant_data~. The
+~/vagrant_data~ is a specific directory shared with the
+=~/rescom17-enos= of the host machine. If you look into this
+directory, you will see, among others, an archive named
+~enos-node-rally.tar.gz~. Concretely, this archive contains a backup
+of Rally database with all raw data and the Rally reports. You can
+extract the rally report with the following command and then open it
+in your favorite browser:
+: rost:~/rescom17-enos$ tar -x root/rally_home/report.html -f enos-node-rally.tar.gz
 
 ** Integration with a custom benchmarking suite
+EnOS exposes information it gathered during the deployment and
+benchmarking with:
+#+BEGIN_EXAMPLE
+vagrant@enos-node:/opt/enos$ enos info --out json
+{"resultdir": "/opt/enos/enos_2017-06-18T14:52:54.341891", "config_file": "./reservation.yaml", "eths": ["eth1", "eth2"], "provider_net": {"start": "192.168.143.3", "end": "192.168.143.119", "dns": "8.8.8.8", "extra_ips": [], "cidr": "192.168.143.0/24", "gateway": "192.168.143.1"}, "user": "", "phase": "", "nodes": {}, "rsc": {"control": [{"extra": {}, "alias": "enos-node", "user": "root", "address": "127.0.0.1", "keyfile": null, "port": null}], "compute": [{"extra": {}, "alias": "enos-node", "user": "root", "address": "127.0.0.1", "keyfile": null, "port": null}], "network": [{"extra": {}, "alias": "enos-node", "user": "root", "address": "127.0.0.1", "keyfile": null, "port": null}]}, "config": {"resultdir": "/opt/enos/enos_2017-06-18T14:52:54.341891", "kolla_ref": "stable/ocata", "influx_vip": "192.168.142.102", "vip": "192.168.142.103", "registry_vip": "192.168.142.104", "grafana_vip": "192.168.142.101", "backup_dir": "/vagrant_data", "kolla_repo": "https://git.openstack.org/openstack/kolla-ansible", "inventory": "inventories/inventory.sample", "external_vip": "192.168.142.100", "enable_monitoring": true, "kolla": {"kolla_base_distro": "centos", "kolla_install_type": "source", "docker_namespace": "beyondtheclouds", "enable_heat": "no", "node_custom_config": "patch/"}, "provider": {"type": "static", "eths": ["eth1", "eth2"], "network": {"start": "192.168.143.3", "end": "192.168.143.119", "dns": "8.8.8.8", "extra_ips": ["192.168.142.100", "192.168.142.101", "192.168.142.102", "192.168.142.103", "192.168.142.104"], "cidr": "192.168.143.0/24", "gateway": "192.168.143.1"}}, "database_password": "demo", "registry": {"ceph": false}, "rabbitmq_password": "demo", "resources": {"control": {"alias": "enos-node", "user": "root", "address": "127.0.0.1"}, "compute": {"alias": "enos-node", "user": "root", "address": "127.0.0.1"}, "network": {"alias": "enos-node", "user": "root", "address": "127.0.0.1"}}, "network_interface": "eth1"}, "inventory": "/opt/enos/enos_2017-06-18T14:52:54.341891/multinode"}
+#+END_EXAMPLE
+
+Someone can easily reuse this information to integrate its own
+benchmarking suite in an ah-doc manner.
 
 * Add Traffic Shaping (optional -- non static provider only)
 ** Define Network Constraints (latency + packet loss)
