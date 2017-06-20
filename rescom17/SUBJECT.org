@@ -78,7 +78,7 @@ directory.
 
 #+BEGIN_NOTE
 The box contains EnOS together with all resources needed by EnOS to
-run OpenStack. The result is relatively huge (4GB) box, but it
+run OpenStack. The result is relatively huge (~6GB) box, but it
 contains everything you need to run EnOS almost offline.
 #+END_NOTE
 
@@ -108,6 +108,13 @@ Vagrant.configure("2") do |config|
     vb.cpus = 4
     vb.memory = 6144
   end
+	
+ # Share a directory between the host and guest OS 
+ config.vm.synced_folder "./", "/vagrant_data",
+  owner: "vagrant",
+  group: "vagrant"
+ end
+
 end
 #+END_SRC
 
@@ -203,6 +210,24 @@ To deploy OpenStack, Enos reads a configuration file. You can find a
 example in the lab vm:
 
 : vagrant@enos-node:/opt/enos$ less /opt/enos/reservation.yaml
+#+BEGIN_COMMENT
+- Adrien: 
+ + I didn't succeed to put ~openstack_release: "4.0.2"~
+ + Moreove, I would rather prefer to have a kind of WARNING box to highlight this area in a different manner than the usual information block
+#+END_COMMENT
+
+#+BEGIN_NOTE
+*Please note that with  the box you downloaded, it is mandatory to specify the openstack version in the configuration file.*
+Please edit the reservation.yaml and add the line ~openstack_release:...~"  in the ~global.yml~ section:
+#+BEGIN_EXAMPLE 
+ # globals.yml
+kolla:
+  openstack_release: "4.0.2"
+  kolla_base_distro: centos
+  kolla_install_type: source
+#+END_EXAMPLE
+#+END_NOTE
+
 
 #+BEGIN_NOTE
 For the sake of this lab (since everybody does not have a Grid'5000/Chameleon
@@ -211,6 +236,7 @@ OpenStack services using the static provider targetting a single machine.
 
 If you want more information on the supported provider, you can have a look to [fn:enos-provider].
 #+END_NOTE
+
 
 ** Deploy OpenStack
 EnOS manages all the aspect of an OpenStack deployment by calling
